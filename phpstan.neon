@@ -1,0 +1,12 @@
+#includes:
+#    - phpstan-baseline.neon
+
+parameters:
+    bootstrapFiles:
+        - vendor/autoload.php
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: false
+    level: 8
+    paths:
+    	- src
+    	- tests

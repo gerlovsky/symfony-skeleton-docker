@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+    api-nginx:
+        ports:
+            - ${CONTAINER_PORT_NGINX:-80}:80
+        depends_on:
+            - api-php-fpm
+        volumes:
+            - ${PATH_BACKEND:-.}:/app:ro
+
+    api-php-fpm:
+        build:
+            args:
+                - XDEBUG_ENABLE=${XDEBUG_ENABLE}
+        environment:
+            PHP_IDE_CONFIG:
+            PHP_IDE_KEY:
+            XDEBUG_REMOTE_HOST:
+            XDEBUG_SESSION:
+        volumes:
+            - ${PATH_BACKEND:-.}/:/app
+
+    api-php-cli:
+        build:
+            args:
+                - XDEBUG_ENABLE=${XDEBUG_ENABLE}
+        volumes:
+            - ${PATH_BACKEND:-.}/:/app
+
+#     api-workers:
+#         build:
+#             context: ./.docker
+#             dockerfile: development/worker/Dockerfile
+#         environment:
+#             APP_ENV: ${APP_ENV:-dev}
+#             APP_DEBUG: ${APP_DEBUG:-1}
+#             DATABASE_URL: ${DATABASE_URL:-mysql://root:password@database:3306/database}
+#         volumes:
+#             - ${PATH_BACKEND:-.}/:/app
+
+#     api-mysql:
+#         image: docker.io/bitnami/mysql:8.0-debian-10
+#         hostname: mysql
+#         environment:
+#             MYSQL_USER: ${MYSQL_USER:?MYSQL_USER is not set or empty}
+#             MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
+#             MARIADB_CHARACTER_SET: ${MYSQL_CHARACTER_SET:-utf8mb4}
+#             MARIADB_COLLATE: ${MYSQL_COLLATE:-utf8mb4_general_ci}
+#             MYSQL_ROOT_USER: ${MYSQL_ROOT_USER:-root}
+#             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is not set or empty}
+#             MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is not set or empty}
+#             MYSQL_AUTHENTICATION_PLUGIN: ${MYSQL_AUTH_PLUGIN:-mysql_native_password}
+#         ports:
+#             - ${CONTAINER_PORT_MYSQL:-3306}:3306
+#         volumes:
+#             - mysql-data:/bitnami/mysql/data
+
+# volumes:
+#     mysql-data:
+#         name: ${SERVICE_ID}-mysql-data

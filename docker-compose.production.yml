@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+    api-nginx:
+        build:
+            context: ./
+            dockerfile: .docker/production/nginx/Dockerfile
+        ports:
+            - ${CONTAINER_PORT_NGINX:-80}:80
+        depends_on:
+            - api-php-fpm
+        volumes:
+            - ${PATH_BACKEND:-.}:/app:ro
+
+    api-php-fpm:
+        build:
+            context: ./
+            dockerfile: .docker/production/php-fpm/Dockerfile
+        environment:
+            APP_ENV: prod
+            APP_DEBUG: 0
+            APP_SECRET: ${APP_SECRET}
+        volumes:
+            - ${PATH_BACKEND:-.}/:/app
+
+    api-php-cli:
+        build:
+            context: ./
+            dockerfile: .docker/production/php-cli/Dockerfile
+        environment:
+            APP_ENV: prod
+            APP_DEBUG: 0
+            APP_SECRET: ${APP_SECRET}
+        volumes:
+            - ${PATH_BACKEND:-.}/:/app
+
+    api-workers:
+        image: ${API_WORKERS_IMAGE:-api-workers}:${API_WORKERS_IMAGE_TAG:-latest}
+        build:
+            context: ./
+            dockerfile: .docker/production/worker/Dockerfile
+        command: ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+        environment:
+            APP_ENV: prod
+            APP_DEBUG: 0
+
+# volumes:
+#     mysql-data:
+#         name: ${SERVICE_ID}-mysql-data

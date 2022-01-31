@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+    api-nginx:
+        image: ${API_NGINX_IMAGE:-api-nginx}:${API_NGINX_IMAGE_TAG:-latest}
+        build:
+            context: ./
+            dockerfile: .docker/development/nginx/Dockerfile
+        networks:
+          - default
+
+    api-php-fpm:
+        image: ${API_PHP_FPM_IMAGE:-api-php-fpm}:${API_PHP_FPM_IMAGE_TAG:-latest}
+        build:
+            context: ./
+            dockerfile: .docker/development/php-fpm/Dockerfile
+        environment:
+            APP_ENV: ${APP_ENV:-dev}
+            APP_DEBUG: ${APP_DEBUG:-1}
+            DATABASE_URL: ${DATABASE_URL:-mysql://root:password@database:3306/database}
+        networks:
+          - default
+
+    api-php-cli:
+        image: ${API_PHP_CLI_IMAGE:-api-php-cli}:${API_PHP_CLI_IMAGE_TAG:-latest}
+        build:
+            context: ./
+            dockerfile: .docker/development/php-cli/Dockerfile
+        environment:
+            APP_ENV: ${APP_ENV:-dev}
+            APP_DEBUG: ${APP_DEBUG:-1}
+            DATABASE_URL: ${DATABASE_URL:-mysql://root:password@database:3306/database}
+        networks:
+          - default
+
+#     api-workers:
+#         image: ${API_WORKERS_IMAGE:-api-workers}:${API_WORKERS_IMAGE_TAG:-latest}
+#         build:
+#             context: ./
+#             dockerfile: .docker/development/worker/Dockerfile
+#         command: ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+#         environment:
+#             APP_ENV: ${APP_ENV:-dev}
+#             APP_DEBUG: ${APP_DEBUG:-1}
+#             DATABASE_URL: ${DATABASE_URL:-mysql://root:password@database:3306/database}
+#         logging: *default-logging
+#         networks:
+#           - default
+
+networks:
+  default:
+    name: ${SERVICE_ID}-net
+    driver: bridge
